@@ -1,0 +1,55 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: dependencies
+      run: nuget install MySqlConnector
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: pre-changelog
+      run: git config --global --add safe.directory /home/runner/work/velomaxmanager/velomaxmanager
+    - name: generate-changelog-action
+      uses: ScottBrenner/generate-changelog-action@v1.3.3
+
+      id: Changelog
+      env:
+        REPO: ${{ github.repository }}
+      with:
+         package-dir: '/home/runner/work/velomaxmanager/velomaxmanager/.workflows/package.json'
+    - uses: prompt/actions-commit-hash@v3
+      id: commit
+    - name: Upload
+      uses: softprops/action-gh-release@v2.0.4
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+          tag_name: ${{ steps.commit.outputs.short }}
+          name: Release ${{ github.ref }}
+          body: |
+            ${{ steps.Changelog.outputs.changelog }}
+          files: "/home/runner/work/velomaxmanager/velomaxmanager/bin/Debug/net8.0/Projet.dll"
