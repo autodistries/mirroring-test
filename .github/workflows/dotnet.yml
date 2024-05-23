@@ -50,19 +50,19 @@ jobs:
           echo "Commit SHA: ${{ github.sha }}"
       # Fetching Pull Request Number Associated with Commit
     - name: Get Associated Pull Request Number
-        uses: actions/github-script@v6
-        id: get_pr_number
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const { sha } = context;
-            const prNumber = await github.rest.pulls.listAssociatedPullRequests({
-              owner,
-              repo,
-              commit_sha: sha,
-            }).then(res => res.data[0]?.number);
-            return prNumber;
-        env:
+      uses: actions/github-script@v6
+      id: get_pr_number
+      with:
+      script: |
+        const { owner, repo } = context.repo;
+        const { sha } = context;
+        const prNumber = await github.rest.pulls.listAssociatedPullRequests({
+        owner,
+        repo,
+        commit_sha: sha,
+        }).then(res => res.data[0]?.number);
+        return prNumber;
+      env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload
