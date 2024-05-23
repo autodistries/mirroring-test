@@ -44,7 +44,7 @@ jobs:
     - uses: prompt/actions-commit-hash@v3
       id: commit
     - name: Print Push Information
-        run: |
+      run: |
           echo "Branch: ${{ github.ref }}"
           echo "Pusher Name: ${{ github.actor }}"
           echo "Commit SHA: ${{ github.sha }}"
